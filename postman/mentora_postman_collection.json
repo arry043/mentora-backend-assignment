@@ -1,0 +1,920 @@
+{
+    "info": {
+        "name": "Mentora API",
+        "_postman_id": "mentora-api-collection",
+        "description": "Mentora API collection aligned with project routes. Includes dynamic auth/user data and chained tests for automated execution in Portman/Newman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "if (!pm.collectionVariables.get('runId')) {",
+                    "  pm.collectionVariables.set('runId', Date.now().toString());",
+                    "}",
+                    "if (!pm.collectionVariables.get('parentPassword')) {",
+                    "  pm.collectionVariables.set('parentPassword', 'SecurePass123');",
+                    "}",
+                    "if (!pm.collectionVariables.get('mentorPassword')) {",
+                    "  pm.collectionVariables.set('mentorPassword', 'SecurePass123');",
+                    "}",
+                    "if (!pm.collectionVariables.get('summaryText')) {",
+                    "  pm.collectionVariables.set('summaryText', 'Mentora connects parents, students, and mentors for structured learning journeys. Parents can manage student profiles, browse lessons, and make bookings. Mentors can create lessons and add sessions with topical summaries. The backend uses JWT authentication and role-based authorization to secure each workflow. This text is intentionally long enough to pass summarization validation.');",
+                    "}",
+                    "const safeSummaryText = pm.collectionVariables.get('summaryText') || '';",
+                    "pm.collectionVariables.set('summarizeRequestBody', JSON.stringify({ text: safeSummaryText }));",
+                    "if (!pm.collectionVariables.get('shortText')) {",
+                    "  pm.collectionVariables.set('shortText', 'too short text');",
+                    "}",
+                    "if (!pm.collectionVariables.get('largeText')) {",
+                    "  pm.collectionVariables.set('largeText', 'A'.repeat(10001));",
+                    "}",
+                    "const safeShortText = pm.collectionVariables.get('shortText') || '';",
+                    "const safeLargeText = pm.collectionVariables.get('largeText') || '';",
+                    "pm.collectionVariables.set('summarizeShortRequestBody', JSON.stringify({ text: safeShortText }));",
+                    "pm.collectionVariables.set('summarizeLargeRequestBody', JSON.stringify({ text: safeLargeText }));"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "rootUrl",
+            "value": "http://localhost:3000"
+        },
+        {
+            "key": "baseUrl",
+            "value": "{{rootUrl}}/api"
+        },
+        {
+            "key": "runId",
+            "value": ""
+        },
+        {
+            "key": "parentName",
+            "value": "Parent Auto"
+        },
+        {
+            "key": "mentorName",
+            "value": "Mentor Auto"
+        },
+        {
+            "key": "parentEmail",
+            "value": ""
+        },
+        {
+            "key": "mentorEmail",
+            "value": ""
+        },
+        {
+            "key": "parentPassword",
+            "value": "SecurePass123"
+        },
+        {
+            "key": "mentorPassword",
+            "value": "SecurePass123"
+        },
+        {
+            "key": "parentToken",
+            "value": ""
+        },
+        {
+            "key": "mentorToken",
+            "value": ""
+        },
+        {
+            "key": "parentUserId",
+            "value": ""
+        },
+        {
+            "key": "mentorUserId",
+            "value": ""
+        },
+        {
+            "key": "studentId",
+            "value": ""
+        },
+        {
+            "key": "lessonId",
+            "value": ""
+        },
+        {
+            "key": "sessionId",
+            "value": ""
+        },
+        {
+            "key": "bookingId",
+            "value": ""
+        },
+        {
+            "key": "summaryText",
+            "value": ""
+        },
+        {
+            "key": "summarizeRequestBody",
+            "value": "{\"text\":\"\"}"
+        },
+        {
+            "key": "shortText",
+            "value": "too short text"
+        },
+        {
+            "key": "largeText",
+            "value": ""
+        },
+        {
+            "key": "summarizeShortRequestBody",
+            "value": "{\"text\":\"too short text\"}"
+        },
+        {
+            "key": "summarizeLargeRequestBody",
+            "value": "{\"text\":\"\"}"
+        }
+    ],
+    "item": [
+        {
+            "name": "Health",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{rootUrl}}/health",
+                            "host": ["{{rootUrl}}"],
+                            "path": ["health"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Health success is true', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Signup Parent",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"{{parentName}}\",\n  \"email\": \"{{parentEmail}}\",\n  \"password\": \"{{parentPassword}}\",\n  \"role\": \"parent\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "signup"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const runId = pm.collectionVariables.get('runId') || Date.now().toString();",
+                                    "pm.collectionVariables.set('runId', runId);",
+                                    "pm.collectionVariables.set('parentEmail', `parent.${runId}@example.com`);"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Signup parent succeeded', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('parent');",
+                                    "});",
+                                    "pm.collectionVariables.set('parentToken', json.data.token);",
+                                    "pm.collectionVariables.set('parentUserId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Signup Mentor",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"{{mentorName}}\",\n  \"email\": \"{{mentorEmail}}\",\n  \"password\": \"{{mentorPassword}}\",\n  \"role\": \"mentor\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "signup"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const runId = pm.collectionVariables.get('runId') || Date.now().toString();",
+                                    "pm.collectionVariables.set('runId', runId);",
+                                    "pm.collectionVariables.set('mentorEmail', `mentor.${runId}@example.com`);"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Signup mentor succeeded', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('mentor');",
+                                    "});",
+                                    "pm.collectionVariables.set('mentorToken', json.data.token);",
+                                    "pm.collectionVariables.set('mentorUserId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Login Parent",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{parentEmail}}\",\n  \"password\": \"{{parentPassword}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "login"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Parent login succeeded', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('parent');",
+                                    "});",
+                                    "pm.collectionVariables.set('parentToken', json.data.token);",
+                                    "pm.collectionVariables.set('parentUserId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Login Mentor",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{mentorEmail}}\",\n  \"password\": \"{{mentorPassword}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "login"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mentor login succeeded', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('mentor');",
+                                    "});",
+                                    "pm.collectionVariables.set('mentorToken', json.data.token);",
+                                    "pm.collectionVariables.set('mentorUserId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Me Parent",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "me"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Current user is parent', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('parent');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Me Mentor",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "me"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Current user is mentor', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.role).to.eql('mentor');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Students",
+            "item": [
+                {
+                    "name": "Create Student",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Student {{runId}}\",\n  \"age\": 15\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/students",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["students"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Student created', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data._id).to.be.a('string');",
+                                    "});",
+                                    "pm.collectionVariables.set('studentId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Students",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/students",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["students"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Students response shape is valid', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data).to.be.an('array');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Lessons",
+            "item": [
+                {
+                    "name": "Create Lesson",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Advanced Mathematics {{runId}}\",\n  \"description\": \"Calculus and Algebra for high school learners with practical examples.\",\n  \"mentorId\": \"{{mentorUserId}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/lessons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["lessons"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Lesson created', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data._id).to.be.a('string');",
+                                    "});",
+                                    "pm.collectionVariables.set('lessonId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Lessons",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/lessons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["lessons"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Lessons response shape is valid', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data).to.be.an('array');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sessions",
+            "item": [
+                {
+                    "name": "Create Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"lessonId\": \"{{lessonId}}\",\n  \"date\": \"2026-03-11T10:00:00.000Z\",\n  \"topic\": \"Introduction to Derivatives\",\n  \"summary\": \"A complete walkthrough of core derivative rules.\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["sessions"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Session created', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data._id).to.be.a('string');",
+                                    "});",
+                                    "pm.collectionVariables.set('sessionId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Sessions By Lesson",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/lessons/{{lessonId}}/sessions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["lessons", "{{lessonId}}", "sessions"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Sessions response shape is valid', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data).to.be.an('array');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Bookings",
+            "item": [
+                {
+                    "name": "Create Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"lessonId\": \"{{lessonId}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/bookings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["bookings"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 201', function () {",
+                                    "  pm.response.to.have.status(201);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Booking created', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data._id).to.be.a('string');",
+                                    "});",
+                                    "pm.collectionVariables.set('bookingId', json.data._id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Join Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{parentToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"studentId\": \"{{studentId}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/sessions/{{sessionId}}/join",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["sessions", "{{sessionId}}", "join"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 200', function () {",
+                                    "  pm.response.to.have.status(200);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Session join succeeded', function () {",
+                                    "  pm.expect(json.success).to.eql(true);",
+                                    "  pm.expect(json.data.joinedStudentIds).to.be.an('array');",
+                                    "  pm.expect(json.data.joinedStudentIds).to.include(pm.collectionVariables.get('studentId'));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "LLM",
+            "item": [
+                {
+                    "name": "Summarize Text",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{{summarizeRequestBody}}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/llm/summarize",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["llm", "summarize"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const allowed = [200, 502, 503, 429];",
+                                    "pm.test('Status is expected for LLM endpoint', function () {",
+                                    "  pm.expect(allowed).to.include(pm.response.code);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "if (pm.response.code === 200) {",
+                                    "  pm.test('Summary returned', function () {",
+                                    "    pm.expect(json.summary).to.be.a('string');",
+                                    "    pm.expect(json.model).to.be.a('string');",
+                                    "  });",
+                                    "} else {",
+                                    "  pm.test('Failure response format is valid', function () {",
+                                    "    pm.expect(json.success).to.eql(false);",
+                                    "    pm.expect(json.message).to.be.a('string');",
+                                    "  });",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Summarize Text Too Short",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{{summarizeShortRequestBody}}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/llm/summarize",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["llm", "summarize"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 400 for short text', function () {",
+                                    "  pm.response.to.have.status(400);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Validation error returned', function () {",
+                                    "  pm.expect(json.success).to.eql(false);",
+                                    "  pm.expect(json.message).to.eql('Validation Error');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Summarize Text Too Large",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{mentorToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{{summarizeLargeRequestBody}}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/llm/summarize",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["llm", "summarize"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status is 413 for oversized text', function () {",
+                                    "  pm.response.to.have.status(413);",
+                                    "});",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Payload too large message returned', function () {",
+                                    "  pm.expect(json.success).to.eql(false);",
+                                    "  pm.expect(json.message).to.be.a('string');",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
