@@ -201,26 +201,21 @@ Test Summary:
 
 ## API Test Results (Screenshots)
 
-### Collection Run Summary
-<!-- Add GitHub image URL after uploading screenshot -->
-<!-- Example: ![Collection Run Summary](https://raw.githubusercontent.com/<username>/<repo>/<branch>/docs/screenshots/run-summary.png) -->
-![Collection Run Summary](PASTE_GITHUB_IMAGE_URL_HERE)
-
 ### Authentication + Core Flow
 <!-- Add GitHub image URL after uploading screenshot -->
-![Authentication and Core Flow](PASTE_GITHUB_IMAGE_URL_HERE)
+![Authentication and Core Flow](https://raw.githubusercontent.com/arry043/mentora-backend-assignment/refs/heads/main/docs/Screenshot%202026-03-11%20at%2010.58.22%E2%80%AFAM.png)
 
 ### Sessions, Booking, and LLM Flow
 <!-- Add GitHub image URL after uploading screenshot -->
-![Sessions Booking and LLM Flow](PASTE_GITHUB_IMAGE_URL_HERE)
+![Sessions Booking and LLM Flow](https://raw.githubusercontent.com/arry043/mentora-backend-assignment/refs/heads/main/docs/Screenshot%202026-03-11%20at%2010.58.39%E2%80%AFAM.png)
 
 ### LLM Validation - Short Text (400)
 <!-- Add GitHub image URL after uploading screenshot -->
-![LLM Short Text 400](PASTE_GITHUB_IMAGE_URL_HERE)
+![LLM Short Text 400](https://raw.githubusercontent.com/arry043/mentora-backend-assignment/refs/heads/main/docs/Screenshot%202026-03-11%20at%2011.01.51%E2%80%AFAM.png)
 
 ### LLM Validation - Large Text (413)
 <!-- Add GitHub image URL after uploading screenshot -->
-![LLM Large Text 413](PASTE_GITHUB_IMAGE_URL_HERE)
+![LLM Large Text 413](https://raw.githubusercontent.com/arry043/mentora-backend-assignment/refs/heads/main/docs/Screenshot%202026-03-11%20at%2011.02.10%E2%80%AFAM.png)
 
 ---
 
