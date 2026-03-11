@@ -48,6 +48,36 @@ npm start
 
 ---
 
+## Project Structure
+
+src/
+ ├── controllers
+ ├── services
+ ├── models
+ ├── routes
+ ├── middleware
+ └── validators
+
+postman/
+docs/
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- JWT Authentication
+- Zod Validation
+- Google Gemini API
+- Postman (API testing)
+
+
+## API Documentation
+
+Interactive Postman Documentation:
+
+https://documenter.getpostman.com/view/40266887/2sBXierZaf
+
 ## API Endpoints List
 
 Base URL assumes `http://localhost:3000`
@@ -157,6 +187,17 @@ curl -X POST http://localhost:3000/api/llm/summarize \
   - `Summarize Text Too Short` (expects `400`)
   - `Summarize Text Too Large` (expects `413`)
 - Re-publish Documenter after importing the latest collection changes.
+
+## Automated API Testing
+
+All endpoints were validated using Postman Collection Runner.
+
+Test Summary:
+
+- Total Tests: 30
+- Passed: 30
+- Failed: 0
+- Errors: 0
 
 ## API Test Results (Screenshots)
 
