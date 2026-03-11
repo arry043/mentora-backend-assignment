@@ -76,7 +76,7 @@ docs/
 
 Interactive Postman Documentation:
 
-[https://documenter.getpostman.com/view/40266887/2sBXierZaf](https://documenter.getpostman.com/view/40266887/2sBXierZf4)
+https://documenter.getpostman.com/view/40266887/2sBXierZf4
 
 ## API Endpoints List
 
